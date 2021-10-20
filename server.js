@@ -16,6 +16,9 @@ const bootcamps = require('./routes/bootcamps')
 
 const app = express()
 
+//Body parser i.e. show JSON body
+app.use(express.json())
+
 //Use morgan to log the request along with the route
 //This will run only when the server is running in Development mode
 if(process.env.NODE_ENV === 'Development') {
