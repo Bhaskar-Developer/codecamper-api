@@ -2,12 +2,16 @@ const express = require('express')
 const dotenv = require('dotenv')
 //const logger = require('./middlewares/logger')
 const morgan = require('morgan')
-
-//Load Route Files
-const bootcamps = require('./routes/bootcamps')
+const connectDB = require('./config/db')
 
 // Load Environment Variables
 dotenv.config({ path: './config/config.env' })
+
+//Connect to Remote MongoDB Database
+connectDB()
+
+//Load Route Files
+const bootcamps = require('./routes/bootcamps')
 
 const app = express()
 
@@ -22,7 +26,14 @@ app.use('/api/v2/bootcamps', bootcamps)
 
 const PORT = process.env.PORT || 5000
 
-app.listen(
+const server = app.listen(
   PORT, 
   console.log(`Server running in ${process.env.NODE_ENV} mode on Port ${PORT}`)
 )
+
+//Handle Unhandled Promise Rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.log(`Error: ${err}`)
+  //Crash the Application i.e. close server and exit application
+  server.close(() => process.exit(1))
+})
