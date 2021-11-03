@@ -1,12 +1,27 @@
 const Bootcamp = require('../models/Bootcamp')
 const errorResponse = require('../utils/errorResponse')
 const asyncHandler = require('../middlewares/async')
+const geocoder = require('../utils/geocoder')
 
 //@desc     Get All Bootcamps
 //@route    GET /api/v2/bootcamps
 //@access   Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-    const bootcamps = await Bootcamp.find()
+    let query
+
+    //convert the query string to json strings
+    let queryStr = JSON.stringify(req.query)
+
+    //Filter out bootcamps based on the average cost(a field defined in the Bootcamp model)). 
+    //lt=less-than,lte=less-than-equal-to,gt=greater-than,gte=greater-than-equal-to
+    //replace gte,gt,lte,lt,in with $gte,$gt,$lte,$lt,$in. 
+    //These can be used directly used as a mongoose operator 
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in)\b/g, match => `$${match}`)
+    
+    query = Bootcamp.find(JSON.parse(queryStr))
+
+    const bootcamps = await query
+
     res.status(200).json({
       success: true,
       count: bootcamps.length,
@@ -74,5 +89,33 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
     res.status(200).json({
       status: true,
       data: {}
+    })
+})
+
+//@desc     Get Bootcamps within a radius
+//@route    GET /api/v2/bootcamps/radius/:zipcode/:distance
+//@access   Private
+exports.getBootcampsWithinRadius = asyncHandler(async (req, res, next) => {
+    //get the zipcode and distance from the request
+    const { zipcode, distance } = req.params
+
+    //Get latitude and longitude from geocoder
+    const loc = await geocoder.geocode(zipcode)
+    const latitude = loc[0].latitude
+    const longitude = loc[0].longitude
+
+    //Calculate radius using radians
+    //Divide distance by radius of earth
+    //Earth Radius = 3,963 mi / 6,378 km
+    //Imp: Convert the distance to kilometers later and include Indian addresses.
+    const radius = distance / 3963
+    const bootcamps = await Bootcamp.find({
+      location: { $geoWithin: { $centerSphere: [[longitude, latitude], radius] } }
+    })
+    
+    res.status(200).json({
+      success: true,
+      count: bootcamps.length,
+      data: bootcamps
     })
 })
