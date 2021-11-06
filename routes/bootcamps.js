@@ -9,6 +9,12 @@ const {
   uploadPhotoToBootcamp
 } = require('../controllers/bootcamps')
 
+//use advancedResults middleware
+const advancedResults = require('../middlewares/advancedResults')
+
+//include Bootcamp model that will be used in advanced results
+const Bootcamp = require('../models/Bootcamp')
+
 //Include other resource routers
 const courseRouter = require('./courses')
 
@@ -28,7 +34,7 @@ router
 
 router
   .route('/')
-  .get(getBootcamps)
+  .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
   .post(createBootcamp)
 
 router

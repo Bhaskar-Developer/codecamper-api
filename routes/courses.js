@@ -8,9 +8,18 @@ const {
   deleteCourse
 } = require('../controllers/courses')
 
+//use advancedResults middleware
+const advancedResults = require('../middlewares/advancedResults')
+
+//Include Course model that will be used in advanced results
+const Course = require('../models/Course')
+
 router
   .route('/')
-  .get(getCourses)
+  .get(advancedResults(Course, {
+    path: 'bootcamp',
+    select: 'name description'
+  }), getCourses)
   .post(createCourse)
 
 router
