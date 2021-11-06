@@ -148,7 +148,6 @@ BootcampSchema.virtual('courses', {
 BootcampSchema.pre('remove', async function(next) {
   const bootcamp = this //This is current instance of the bootcamp that is about to be deleted.
   await Course.deleteMany({ bootcamp: bootcamp._id })
-  console.log('Courses Deleted')
   next()
 })
 

@@ -1,8 +1,10 @@
+const path = require('path')
 const express = require('express')
 const dotenv = require('dotenv')
 //const logger = require('./middlewares/logger')
 const morgan = require('morgan')
 const colors = require('colors')
+const fileupload = require('express-fileupload')
 const errorHandler = require('./middlewares/error')
 const connectDB = require('./config/db')
 
@@ -26,6 +28,12 @@ app.use(express.json())
 if(process.env.NODE_ENV === 'Development') {
   app.use(morgan('dev'))
 }
+
+//Set up Static folder
+app.use(express.static(path.join(__dirname, 'public')))
+
+//Support for file uploads - Mainly used to upload photo for a Bootcamp
+app.use(fileupload())
 
 //Mount Routes
 app.use('/api/v2/bootcamps', bootcamps)
