@@ -4,7 +4,8 @@ const {
   getCourses,
   getCourse,
   createCourse,
-  updateCourse
+  updateCourse,
+  deleteCourse
 } = require('../controllers/courses')
 
 router
@@ -16,6 +17,7 @@ router
   .route('/:id')
   .get(getCourse)  
   .put(updateCourse)
+  .delete(deleteCourse)
 
 
 module.exports = router

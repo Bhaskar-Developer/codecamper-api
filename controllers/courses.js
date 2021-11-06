@@ -99,3 +99,22 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     })
 })
 
+//@desc     Delete Course
+//@route    PUT /api/v2/courses/:id
+//@access   Public
+exports.deleteCourse = asyncHandler(async (req, res, next) => {
+    //check if the course to be deleted exists in the database
+    const course = await Course.findById(req.params.id)
+
+    if (!course) {
+        return next(new errorResponse(`Course not found with the id of ${req.params.id}`, 404))
+    }
+
+    //Delete the course
+    await course.remove()
+
+    res.status(200).json({
+        success: true,
+        data: {}
+    })
+})
