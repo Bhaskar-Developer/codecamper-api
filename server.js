@@ -14,6 +14,7 @@ connectDB()
 
 //Load Route Files
 const bootcamps = require('./routes/bootcamps')
+const courses = require('./routes/courses')
 
 const app = express()
 
@@ -28,6 +29,7 @@ if(process.env.NODE_ENV === 'Development') {
 
 //Mount Routes
 app.use('/api/v2/bootcamps', bootcamps)
+app.use('/api/v2/courses', courses)
 
 //using Custom Error Handler
 app.use(errorHandler)
