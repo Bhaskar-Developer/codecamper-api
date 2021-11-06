@@ -12,10 +12,13 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
     //check if the req params has bootcampId and build the query based on that
     if (req.params.bootcampId) {
         //get the courses that are associated with the specified bootcamp id
-        query = Course.find({ bootcamp: req.params.bootcampId})
+        query = Course.find({ bootcamp: req.params.bootcampId })
     } else {
        //get all courses if the req params does not have bootcampId
-        query = Course.find()
+        query = Course.find().populate({
+          path: 'bootcamp',
+          select: 'name description'
+        })
     }
 
     const courses = await query

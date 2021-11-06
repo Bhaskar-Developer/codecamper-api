@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const slugify = require('slugify')
 const geocoder = require('../utils/geocoder')
+const Course = require('./Course')
 
 //Create the Schema for Bootcamps
 const BootcampSchema = new mongoose.Schema({
@@ -102,6 +103,9 @@ const BootcampSchema = new mongoose.Schema({
     type: Date,
     default:Date.now
   }
+},{
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 })
 
 //Run this mongoose middleware to convert the Bootcamp name into a slug and then save it to the Slug field in the Bootcamp
@@ -131,5 +135,21 @@ BootcampSchema.pre('save', async function(next) {
   bootcamp.address = undefined
   next()
 }) 
+
+//Create a virtual field on Bootcamp for courses
+BootcampSchema.virtual('courses', {
+  ref: 'Course',
+  localField: '_id',
+  foreignField: 'bootcamp',
+  justOne: false
+})
+
+//Cascade Delete associated courses when a bootcamp is deleted
+BootcampSchema.pre('remove', async function(next) {
+  const bootcamp = this //This is current instance of the bootcamp that is about to be deleted.
+  await Course.deleteMany({ bootcamp: bootcamp._id })
+  console.log('Courses Deleted')
+  next()
+})
 
 module.exports = mongoose.model('Bootcamp',BootcampSchema)

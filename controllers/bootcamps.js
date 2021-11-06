@@ -28,7 +28,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in)\b/g, match => `$${match}`)
     
     //parse the query string to json
-    query = Bootcamp.find(JSON.parse(queryStr))
+    query = Bootcamp.find(JSON.parse(queryStr)).populate('courses')
 
     //Select Fields
     if (req.query.select) {
@@ -135,11 +135,15 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
 //@route    DELETE /api/v2/bootcamps/:id
 //@access   Private
 exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
-    const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id)
+    const bootcamp = await Bootcamp.findById(req.params.id)
 
     if(!bootcamp) {
       return next(new errorResponse(`Bootcamp with id ${req.params.id} not found`, 404))
     }
+
+    //Remove the bootcamp. 
+    //This will also trigger the mongoose middleware that is used to remove the associated courses when a bootcamp is deleted.
+    bootcamp.remove()
 
     res.status(200).json({
       status: true,
