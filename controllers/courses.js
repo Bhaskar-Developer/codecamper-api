@@ -8,10 +8,18 @@ const Bootcamp = require('../models/Bootcamp')
 //@route    GET /api/v2/bootcamps/:bootcampId/courses
 //@access   Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
-    //check if the req params has bootcampId and build the query based on that
+    //check if the req params has bootcampId
+    //if it does, then get the courses associated with that bootcamp 
     if (req.params.bootcampId) {
-        //get the courses that are associated with the specified bootcamp id
-        const courses = Course.find({ bootcamp: req.params.bootcampId })
+        //check if the bootcamp exists
+        const bootcamp = await Bootcamp.findById(req.params.bootcampId)
+
+        if (!bootcamp) {
+            return next(new errorResponse(`Bootcamp not found with id of ${req.params.bootcampId}`, 404))
+        }
+
+        //get the courses that are associated with this bootcamp
+        const courses = await Course.find({ bootcamp: req.params.bootcampId })
         //send all the matched courses if there is not filter used
         return res.status(200).json({
             success: true,

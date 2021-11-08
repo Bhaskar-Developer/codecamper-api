@@ -13,7 +13,6 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     //convert the query string to json strings
     let queryStr = JSON.stringify(reqQuery)
   
-    //Filter out results based on the average cost
     //lt=less-than,lte=less-than-equal-to,gt=greater-than,gte=greater-than-equal-to
     //replace gte,gt,lte,lt,in with $gte,$gt,$lte,$lt,$in. 
     //These can be used directly used as a mongoose operator 
@@ -22,16 +21,17 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     //parse the query string to json
     query = model.find(JSON.parse(queryStr))
 
-    //Select Fields
+    //If query has select option then select the specified fields
     if (req.query.select) {
         const fields = req.query.select.split(',').join(' ')
         query = query.select(fields)
     }
 
-    //Sort the data by specified fields. If there is no sort query then sort by descending order of createdAt
+    //If the query has sort option then sort the data by specified fields. 
     if(req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ')
       query = query.sort(sortBy)
+      //Sort by descending order of course title is not working. Check the query string
     } else {
       //If no sort criteria is specified then sort data by ascending order of createdAt
       query = query.sort('createdAt')
