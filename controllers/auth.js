@@ -46,7 +46,7 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
   //check if the password is correct i.e. the password entered by the user matches the password in the database
   const isMatch = await user.matchPassword(password)
 
-  //if the password is incorrect then show an error
+  //if the password is incorrect then send an error
   if(!isMatch) {
     return next(new errorResponse('Invalid credentials', 401))
   }
@@ -82,3 +82,17 @@ const sendTokenResponse = (user, statusCode, res) => {
       token
     })
 }
+
+//@desc     Get Current logged in User
+//@route    GET /api/v2/auth/me
+//@access   Private
+exports.getLoggedInUSer = asyncHandler(async (req, res, next) => {
+  //get the user id from the request and use it to find the user in the database
+  const user = await User.findById(req.user.id)
+
+  //send the user details
+  res.status(200).json({
+    success: true,
+    data: user
+  })
+})
