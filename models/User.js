@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -37,6 +38,15 @@ const UserSchema = new mongoose.Schema({
 //hash the password before saving it to the database
 UserSchema.pre('save', async function(next){
   const user = this //this is the current user that is about to be saved
+
+  //Check if the password has been modified
+  //If not, skip the hashing process and go to the next middleware
+  if(!user.isModified('password')) {
+    return next()
+  }
+
+  //Hash the password. 
+  //This will run only if password is modified
   const salt = await bcrypt.genSalt(10)
   user.password = await bcrypt.hash(user.password, salt)
   next()
@@ -54,6 +64,20 @@ UserSchema.methods.getSignedJwtToken = function() {
 UserSchema.methods.matchPassword = async function(enteredPassword) {
   const user = this //this is the current instance of the user
   return await bcrypt.compare(enteredPassword, user.password)
+}
+
+//Send reset password token and hash the token and save in the database with the expires time
+UserSchema.methods.getResetPasswordToken = function() {
+  const user = this //this is the current instance of the user
+  //Generate a reset token with crypto. Convert it to a string and send it in the response
+  const resetToken = crypto.randomBytes(20).toString('hex')
+
+  //Hash the token and save it in the database along with the expire time
+  //The expire time is set to 10 minutes
+  user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000
+
+  return resetToken
 }
 
 module.exports = mongoose.model('User', UserSchema)
