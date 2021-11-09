@@ -5,6 +5,7 @@ const dotenv = require('dotenv')
 const morgan = require('morgan')
 const colors = require('colors')
 const fileupload = require('express-fileupload')
+const cookieParser = require('cookie-parser')
 const errorHandler = require('./middlewares/error')
 const connectDB = require('./config/db')
 
@@ -23,6 +24,10 @@ const app = express()
 
 //Body parser i.e. show JSON body
 app.use(express.json())
+
+//Cookie parser
+//This is used to send the token in a cookie to the client
+app.use(cookieParser())
 
 //Use morgan to log the request along with the route
 //This will run only when the server is running in Development mode
