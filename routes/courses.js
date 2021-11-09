@@ -8,6 +8,9 @@ const {
   deleteCourse
 } = require('../controllers/courses')
 
+//Protect Routes that need authentication
+const { protectRoute } = require('../middlewares/auth')
+
 //use advancedResults middleware
 const advancedResults = require('../middlewares/advancedResults')
 
@@ -20,13 +23,13 @@ router
     path: 'bootcamp',
     select: 'name description'
   }), getCourses)
-  .post(createCourse)
+  .post(protectRoute, createCourse)
 
 router
   .route('/:id')
   .get(getCourse)  
-  .put(updateCourse)
-  .delete(deleteCourse)
+  .put(protectRoute, updateCourse)
+  .delete(protectRoute, deleteCourse)
 
 
 module.exports = router

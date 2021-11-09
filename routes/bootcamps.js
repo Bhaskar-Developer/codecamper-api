@@ -9,6 +9,9 @@ const {
   uploadPhotoToBootcamp
 } = require('../controllers/bootcamps')
 
+//Protect Routes that need authentication
+const { protectRoute } = require('../middlewares/auth')
+
 //use advancedResults middleware
 const advancedResults = require('../middlewares/advancedResults')
 
@@ -26,7 +29,7 @@ router
 
 router
   .route('/:id/photo')
-  .put(uploadPhotoToBootcamp)
+  .put(protectRoute, uploadPhotoToBootcamp)
 
 router
   .route('/radius/:zipcode/:distance')
@@ -35,12 +38,12 @@ router
 router
   .route('/')
   .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
-  .post(createBootcamp)
+  .post(protectRoute, createBootcamp)
 
 router
   .route('/:id')
   .get(getBootcamp)
-  .put(updateBootcamp)
-  .delete(deleteBootcamp)  
+  .put(protectRoute, updateBootcamp)
+  .delete(protectRoute, deleteBootcamp)  
 
 module.exports = router
