@@ -60,7 +60,7 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
 //@desc     Get Current logged in User
 //@route    GET /api/v2/auth/me
 //@access   Private
-exports.getLoggedInUSer = asyncHandler(async (req, res, next) => {
+exports.getLoggedInUser = asyncHandler(async (req, res, next) => {
   //get the user id from the request and use it to find the user in the database
   const user = await User.findById(req.user.id)
 
@@ -69,6 +69,57 @@ exports.getLoggedInUSer = asyncHandler(async (req, res, next) => {
     success: true,
     data: user
   })
+})
+
+//@desc     Update User Details
+//@route    PUT /api/v2/auth/updatedetails
+//@access   Private
+exports.updateUserDetails = asyncHandler(async (req, res, next) => {
+  //only allow the user to update the name and email
+  //We only fetch the name and email from the request body
+  const allowedUpdates = {
+    name: req.body.name,
+    email: req.body.email
+  }
+
+  //update the user details in the database
+  const user = await User.findByIdAndUpdate(req.user.id, allowedUpdates, {
+    new: true,
+    runValidators: true
+  })
+
+  //send the user details
+  res.status(200).json({
+    success: true,
+    data: user
+  })
+})
+
+//@desc     Update User Password
+//@route    PUT /api/v2/auth/updatepassword
+//@access   Private
+exports.updateUserPassword = asyncHandler(async (req, res, next) => {
+  //get the current password and new password from the request body
+  const { currentPassword, newPassword } = req.body
+
+  //get the user from the database
+  //We select the password manually because it is not selected by default
+  const user = await User.findById(req.user.id).select('+password')
+
+  //check if the current password entered by the user is correct
+  const isMatch = await user.matchPassword(currentPassword)
+
+  //if the password is incorrect then send an error
+  if(!isMatch) {
+    return next(new errorResponse('Invalid Password', 401))
+  }
+
+  //update the password field with the new password in the database
+  user.password = newPassword
+  await user.save()
+
+  //send the token response
+  sendTokenResponse(user, 200, res) 
 })
 
 //@desc     Forgot Password
