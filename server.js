@@ -19,6 +19,7 @@ connectDB()
 const bootcamps = require('./routes/bootcamps')
 const courses = require('./routes/courses')
 const auth = require('./routes/auth')
+const admin = require('./routes/admin')
 
 const app = express()
 
@@ -45,6 +46,7 @@ app.use(fileupload())
 app.use('/api/v2/bootcamps', bootcamps)
 app.use('/api/v2/courses', courses)
 app.use('/api/v2/auth', auth)
+app.use('/api/v2/users', admin)
 
 //using Custom Error Handler
 app.use(errorHandler)
