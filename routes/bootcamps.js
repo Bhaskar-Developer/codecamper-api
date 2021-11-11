@@ -20,12 +20,14 @@ const Bootcamp = require('../models/Bootcamp')
 
 //Include other resource routers
 const courseRouter = require('./courses')
+const reviewRouter = require('./reviews')
 
 const router = express.Router()
 
 //Re-Route in to other resource routers
 router
   .use('/:bootcampId/courses', courseRouter)
+  .use('/:bootcampId/reviews', reviewRouter)
 
 router
   .route('/:id/photo')

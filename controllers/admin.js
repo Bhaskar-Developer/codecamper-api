@@ -3,7 +3,7 @@ const errorResponse = require('../utils/errorResponse')
 const asyncHandler = require('../middlewares/async')
 
 //@desc     Get All Users
-//@route    GET /api/v2/auth/users
+//@route    GET /api/v2/users
 //@access   Private
 exports.getAllUsers = asyncHandler(async (req, res, next) => {
   //send the advanced results
@@ -11,7 +11,7 @@ exports.getAllUsers = asyncHandler(async (req, res, next) => {
 })
 
 //@desc     Get Single User
-//@route    GET /api/v2/auth/users/:id
+//@route    GET /api/v2/users/:id
 //@access   Private
 exports.getUser = asyncHandler(async (req, res, next) => {
   //get the user from the database using the id
@@ -30,7 +30,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 })
 
 //@desc     Create User
-//@route    POST /api/v2/auth/users
+//@route    POST /api/v2/users
 //@access   Private
 exports.createUser = asyncHandler(async (req, res, next) => {
   //get the user details from the body
@@ -44,7 +44,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 })
 
 //@desc     Update User
-//@route    POST /api/v2/auth/users/:id
+//@route    POST /api/v2/users/:id
 //@access   Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
   //get the user from the database using the idand then update the user with the details from the body
@@ -61,7 +61,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 })
 
 //@desc     Delete User
-//@route    DELETE /api/v2/auth/users/:id
+//@route    DELETE /api/v2/users/:id
 //@access   Private
 exports.deleteUser = asyncHandler(async (req, res, next) => {
   //find the user in the database using the id and then delete the user
