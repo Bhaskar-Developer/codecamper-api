@@ -33,8 +33,8 @@ const advancedResults = (model, populate) => async (req, res, next) => {
       query = query.sort(sortBy)
       //Sort by descending order of course title is not working. Check the query string
     } else {
-      //If no sort criteria is specified then sort data by ascending order of createdAt
-      query = query.sort('createdAt')
+      //If no sort criteria is specified then sort data by descending order of createdAt
+      query = query.sort('-createdAt')
     }
 
     //Pagination

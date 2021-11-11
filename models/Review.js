@@ -33,4 +33,50 @@ const ReviewSchema = new mongoose.Schema({
   }
 })
 
+//User can add only one review per bootcamp
+ReviewSchema.index({ bootcamp: 1, user: 1}, {unique: true})
+
+//static method to get the average rating for a bootcamp
+ReviewSchema.statics.getAverageRating = async function(bootcampId) {
+  //Run Pipeline
+    //Match the bootcamp id with the review's bootcamp id then calculate the average rating
+    //We want to update average rating field of the bootcamp 
+    //We gather all ratings that belong to this bootcamp and calcualte the average rating based on the rating field of the ratings
+    //We then update the new average rating to the bootcamp's averageRating field
+  const obj = await this.aggregate([
+    {
+      $match: {bootcamp: bootcampId}
+    },
+    {
+      $group: {
+        _id: '$bootcamp',
+        averageRating: {$avg: '$rating'}
+      }
+    }
+  ])
+  
+  try {
+    await this.model('Bootcamp').findByIdAndUpdate(bootcampId, {
+      //adding the calculated average rating to the Database
+      averageRating: obj[0].averageRating
+    })
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+//Call getAverageRating after save
+ReviewSchema.post('save', function() {
+  const review = this
+  review.constructor.getAverageRating(review.bootcamp)
+  console.log('Middleware Ran after Review was saved')
+})
+
+//Call getAverageRating before remove
+ReviewSchema.post('remove', function() {
+  const review = this
+  review.constructor.getAverageRating(review.bootcamp)
+  console.log('Middleware Ran after Review was deleted')
+})
+
 module.exports = mongoose.model('Review', ReviewSchema)

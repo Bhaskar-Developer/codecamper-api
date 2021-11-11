@@ -2,7 +2,10 @@ const express = require('express')
 const router = express.Router({ mergeParams: true })
 const {
   getReviews,
-  getReview
+  getReview,
+  addReview,
+  updateReview,
+  deleteReview
 } = require('../controllers/reviews')
 
 //Protect Routes that need authentication
@@ -20,9 +23,12 @@ router
     path: 'bootcamp',
     select: 'name description'
   }), getReviews)
+  .post(protectRoute, authorize('admin', 'user'), addReview)
 
 router
   .route('/:id')
   .get(getReview)  
+  .put(protectRoute, authorize('admin', 'user'), updateReview)
+  .delete(protectRoute, authorize('admin', 'user'), deleteReview)
 
 module.exports = router
