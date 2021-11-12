@@ -5,6 +5,11 @@ const dotenv = require('dotenv')
 const morgan = require('morgan')
 const colors = require('colors')
 const mongoSanitize = require('express-mongo-sanitize')
+const xss = require('xss-clean')
+const rateLimit = require('express-rate-limit')
+const hpp = require('hpp')
+const cors = require('cors')
+const helmet = require('helmet')
 const fileupload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
 const errorHandler = require('./middlewares/error')
@@ -45,7 +50,27 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(fileupload())
 
 //Sanitize data
-app.use(mongoSanitize());
+app.use(mongoSanitize())
+
+//Use Security Headers
+app.use(helmet())
+
+//Prevent XSS attacks
+app.use(xss())
+
+//Rate Limiting
+const limiter = rateLimit({
+  //allow 100 requests per 10 minutes
+  windowMs: 10 * 60 * 1000, 
+  max: 100
+})
+app.use(limiter)
+
+//prevent HTTP paramater pollution
+app.use(hpp())
+
+//Allow CORS
+app.use(cors())
 
 //Mount Routes
 app.use('/api/v2/bootcamps', bootcamps)
