@@ -71,6 +71,46 @@ exports.getLoggedInUser = asyncHandler(async (req, res, next) => {
   })
 })
 
+//@desc     Logout User
+//@route    GET /api/v2/auth/logout
+//@access   Private
+exports.LogOutUser = asyncHandler(async (req, res, next) => {
+  //remove the current token from the user
+  req.user.tokens = req.user.tokens.filter((token) => {
+    return token.token !== req.token
+  })
+
+  await req.user.save()
+
+  //Expire the token set in Cookie in the browser 
+  res.cookie('token', 'none', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true
+  })
+
+  //send the user details
+  res.status(200).json({
+    success: true,
+    data: {}
+  })
+})
+
+//@desc     Logout User From Everywhere
+//@route    GET /api/v2/auth/logoutall
+//@access   Private
+exports.LogoutUserFromEverywhere = asyncHandler(async (req, res, next) => {
+  //remove all the saved tokens from the user
+  req.user.tokens = []
+  
+  //save the user to the database
+  await req.user.save()
+
+  res.status(200).json({
+    success: true,
+    data: {}
+  })
+})
+
 //@desc     Update User Details
 //@route    PUT /api/v2/auth/updatedetails
 //@access   Private
@@ -218,15 +258,18 @@ exports.resetUserPassword = asyncHandler(async (req, res, next) => {
 
 
 //Get the Token from model and send the token in cookie to the client
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = async (user, statusCode, res) => {
   //get the token
   const token = user.getSignedJwtToken()
-  
+
+  //add this token on this user and save it in the database
+  user.tokens = user.tokens.concat({ token })
+  await user.save()
+
   //set the options for the cookie
   const options = {
     expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    secure: false
+    httpOnly: true
   }
 
   //set secure to true i.e. use https if the applicaton runs in production

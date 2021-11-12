@@ -7,17 +7,18 @@ const User = require('../models/User')
 exports.protectRoute = asyncHandler(async (req, res, next) => {
   let token
 
-  //check if the Authorization header is set and if this Authorization header starts with the word Bearer
+  //check if the token is set in the Authorization header. Also check if this Authorization header starts with the word Bearer
+  //If this starts with Bearer, then we know that the token is set in the Authorization header. We can then get the token from this header
   if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     //split the Bearer from the token and extract the token
     token = req.headers.authorization.split(' ')[1]
   }
 
-  //Not using right now!
   //set token from cookie if it exists in the request
-  // else if(req.cookies.token) {
+  // else if(req.cookie.token) {
   //   token = req.cookies.token
-  //  }
+  //   console.log(token)
+  // }
 
   //if token is null then return an error
   if(!token) {
@@ -28,10 +29,12 @@ exports.protectRoute = asyncHandler(async (req, res, next) => {
   try {
     //decode the token and get the userId
     const decodedData = jwt.verify(token, process.env.JWT_SECRET)
-    console.log(decodedData)
+    //console.log(decodedData)
     //check if there is a user with the decoded userId in the database
     //If the user exists then set this as the req.user
+    //console.log(decodedData.id)
     req.user = await User.findById(decodedData.id)
+    req.token = token
     next()
   } catch (error) {
     return next(new errorResponse('Not authorized to access this route', 401))

@@ -69,14 +69,12 @@ ReviewSchema.statics.getAverageRating = async function(bootcampId) {
 ReviewSchema.post('save', function() {
   const review = this
   review.constructor.getAverageRating(review.bootcamp)
-  console.log('Middleware Ran after Review was saved')
 })
 
 //Call getAverageRating before remove
 ReviewSchema.post('remove', function() {
   const review = this
   review.constructor.getAverageRating(review.bootcamp)
-  console.log('Middleware Ran after Review was deleted')
 })
 
 module.exports = mongoose.model('Review', ReviewSchema)

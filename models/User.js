@@ -27,6 +27,12 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     select: false //The password wont be returned in the response
   },
+  tokens:[{
+    token: {
+      type: String,
+      required: true
+    }
+  }],
   resetPasswordToken:String,
   resetPasswordExpire: Date,
   createdAt: {
@@ -34,6 +40,17 @@ const UserSchema = new mongoose.Schema({
     default:Date.now
   }
 })
+
+//Dont send the token in the response when user logs in or when current logged in user details are returned
+UserSchema.methods.toJSON = function() {
+  const user = this
+  const userObject = user.toObject()
+  
+  //delete the password, tokens array and avatar as we don't want to send them
+  delete userObject.tokens
+
+  return userObject
+}
 
 //hash the password before saving it to the database
 UserSchema.pre('save', async function(next){

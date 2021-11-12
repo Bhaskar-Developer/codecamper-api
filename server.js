@@ -4,6 +4,7 @@ const dotenv = require('dotenv')
 //const logger = require('./middlewares/logger')
 const morgan = require('morgan')
 const colors = require('colors')
+const mongoSanitize = require('express-mongo-sanitize')
 const fileupload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
 const errorHandler = require('./middlewares/error')
@@ -42,6 +43,9 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 //Support for file uploads - Mainly used to upload photo for a Bootcamp
 app.use(fileupload())
+
+//Sanitize data
+app.use(mongoSanitize());
 
 //Mount Routes
 app.use('/api/v2/bootcamps', bootcamps)
