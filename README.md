@@ -1,4 +1,4 @@
-# CodeCamper - 
+# CodeCamper - Bootcamps Backend API
 
 ## Features
 
